@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Economia Inteligente</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      color: #1a237e;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin: 20px 0;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px;
+      border-radius: 10px;
+      animation: shimmer 2s infinite linear, pulse 3s infinite;
+      background-image: linear-gradient(90deg, #0d47a1 0%, #42a5f5 50%, #0d47a1 100%);
+      background-size: 200% auto;
+      color: white;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @keyframes shimmer {
+      0% { background-position: -100% 0; }
+      100% { background-position: 100% 0; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    form {
+      width: 90%;
+      max-width: 600px;
+      background: rgba(227, 242, 253, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #90caf9;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #1976d2;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #0d47a1;
+      transform: scale(1.05);
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    #tabelaContainer {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    table {
+      width: 90%;
+      max-width: 800px;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.95);
+      color: #1a237e;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid #bbdefb;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #1976d2;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #e3f2fd;
+    }
+    .pix {
+      margin: 30px 0;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 15px;
+      border-radius: 10px;
+    }
+    .pix img {
+      width: 200px;
+      margin-top: 10px;
+    }
+    .dicas {
+      width: 90%;
+      max-width: 600px;
+      background: rgba(227, 242, 253, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-style: italic;
+      color: #0d47a1;
+    }
+    footer {
+      margin-top: auto;
+      background: #0d47a1;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+      font-weight: bold;
+      width: 100%;
+    }
+    /* Balão tutorial */
+    #tutorial {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      max-width: 300px;
+      background-color: #fff3e0;
+      color: #1a237e;
+      border: 2px solid #ffa726;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      z-index: 9999;
+    }
+    #tutorial ul {
+      padding-left: 18px;
+    }
+    #tutorial button {
+      background-color: #ffa726;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Balão tutorial -->
+  <div id="tutorial">
+    <strong>Como usar o site:</strong>
+    <ul>
+      <li>Informe seu salário mensal para receber dicas.</li>
+      <li>Escolha se quer economizar por dia, semana ou mês.</li>
+      <li>Informe a duração e valor inicial.</li>
+      <li>Defina o objetivo e quanto aumentar.</li>
+      <li>Gere a tabela e compartilhe como quiser.</li>
+    </ul>
+    <button onclick="document.getElementById('tutorial').style.display='none'">Entendi</button>
+  </div>
+
+  <h1>Economia Inteligente</h1>
+
+  <form id="economia-form">
+    <label for="salario">Informe seu salário mensal:</label>
+    <input type="number" id="salario" placeholder="Digite seu salário" required />
+
+    <label for="frequencia">Economizar por:</label>
+    <select id="frequencia">
+      <option value="dia">Dia</option>
+      <option value="semana">Semana</option>
+      <option value="mes">Mês</option>
+    </select>
+
+    <label for="duracao">Informe a duração (quantidade):</label>
+    <input type="number" id="duracao" placeholder="Ex: 30 dias ou 12 meses" required />
+
+    <label for="objetivo">Informe o valor que deseja alcançar:</label>
+    <input type="number" id="objetivo" placeholder="Ex: 3000" />
+
+    <label for="valorMeta">Com quanto deseja começar:</label>
+    <input type="number" id="valorMeta" placeholder="Ex: 10" />
+
+    <label for="incremento">Deseja aumentar quanto a cada período?</label>
+    <input type="number" id="incremento" placeholder="Ex: 5" value="0" />
+
+    <button type="button" onclick="darDica()">Receber dica de economia</button>
+    <button type="button" onclick="gerarTabela()">Gerar Tabela</button>
+  </form>
+
+  <div class="dicas" id="dicaTexto"></div>
+  <div id="tabelaContainer"></div>
+
+  <div class="actions">
+    <button onclick="baixarPDF()">Baixar PDF</button>
+    <button onclick="baixarImagem()">Baixar Imagem</button>
+    <a href="https://wa.me/?text=Veja%20esse%20site%20de%20economia%20incr%C3%ADvel:%20https://example.com" target="_blank">
+      <button>Compartilhar WhatsApp</button>
+    </a>
+  </div>
+
+  <div class="pix">
+    <p>Ajude o projeto com uma doação via Pix:</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?data=00020126360014BR.GOV.BCB.PIX011343382571803520400005802BR5913Fernando V Araujo6009SAO PAULO62070503***6304B14F" alt="QR Code Pix" />
+  </div>
+
+  <footer>
+    Feito por Fernando Vinicius | HTML, CSS, JavaScript
+  </footer>
+
+  <script>
+    function darDica() {
+      const salario = parseFloat(document.getElementById('salario').value);
+      let dica = '';
+      if (salario < 1500) {
+        dica = 'Comece economizando R$5 por dia, é simples e possível!';
+      } else if (salario < 3000) {
+        dica = 'Você pode guardar R$10 por dia com tranquilidade.';
+      } else {
+        dica = 'Tente guardar pelo menos R$15 por dia para metas mais ambiciosas!';
+      }
+      document.getElementById('dicaTexto').innerText = dica;
+    }
+
+    function gerarTabela() {
+      const freq = document.getElementById('frequencia').value;
+      const duracao = parseInt(document.getElementById('duracao').value);
+      let valorMeta = parseFloat(document.getElementById('valorMeta').value) || 10;
+      const incremento = parseFloat(document.getElementById('incremento').value) || 0;
+      const objetivo = parseFloat(document.getElementById('objetivo').value) || Infinity;
+
+      let rows = '';
+      let total = 0;
+
+      for (let i = 1; i <= duracao; i++) {
+        if (total >= objetivo) break;
+        total += valorMeta;
+        rows += `<tr><td>${i}º ${freq}</td><td>R$ ${valorMeta.toFixed(2)}</td><td>R$ ${total.toFixed(2)}</td></tr>`;
+        valorMeta += incremento;
+      }
+
+      document.getElementById('tabelaContainer').innerHTML = `
+        <table>
+          <tr><th>${freq.charAt(0).toUpperCase() + freq.slice(1)}</th><th>Valor Economizado</th><th>Total Acumulado</th></tr>
+          ${rows}
+        </table>
+      `;
+    }
+
+    async function baixarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const canvas = await html2canvas(document.body);
+      const imgData = canvas.toDataURL('image/png');
+      doc.addImage(imgData, 'PNG', 0, 0, 210, 297);
+      doc.save('economia-inteligente.pdf');
+    }
+
+    async function baixarImagem() {
+      const canvas = await html2canvas(document.body);
+      const link = document.createElement('a');
+      link.download = 'economia-inteligente.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+
+</body>
+</html>
